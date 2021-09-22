@@ -15,4 +15,11 @@
     return view('welcome');
 }); */
 
-Route::get('/', "ClientesController@index");
+/* Route::get('/', "ClientesController@index"); */
+
+/**
+ * Sirve para no estar solicitando uno a uno los recursos como GET, POST, PUT y DELETE
+ * como la linea anterior
+ */
+Route::resource('/', "ClientesController");
+Route::resource('/registro', "ClientesController");
