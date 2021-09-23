@@ -24,26 +24,32 @@ class ClientesController extends Controller
         
         $datos = array("nombres"=> $request->input("nombres"),"apellidos"=> $request->input("apellidos"), "email"=> $request->input("email"));
         
-        //Validar datos
-        $validator = Validator::make($datos,[
-            'nombres'=>'required|string|max:255',
-            'apellidos'=>'required|string|max:255',
-            'email'=>'required|string|email|max:255|unique:clientes'
-        ]);
-        // si falla la validacion
+        if(!empty($datos)){
+            //Validar datos
+            $validator = Validator::make($datos,[
+                'nombres'=>'required|string|max:255',
+                'apellidos'=>'required|string|max:255',
+                'email'=>'required|string|email|max:255|unique:clientes'
+            ]);
+            // si falla la validacion
 
-        if($validator->fails()){
-            $json = array("Detalles"=>"Registros con errores");
-            echo json_encode($json,true);
+            if($validator->fails()){
+                $json = array("status"=>404,"Detalles"=>"Registros con errores");
+                echo json_encode($json,true);
+            }else{
+                $cliente = new Clientes();
+                $cliente->nombres = $datos["nombres"];
+                $cliente->apellidos = $datos["apellidos"];
+                $cliente->email = $datos["email"];
+                $cliente->idCliente = Hash::make($datos["nombres"].$datos["apellidos"].$datos["email"]);
+                $cliente->secret_key = Hash::make($datos["email"].$datos["nombres"].$datos["apellidos"],["rounds"=>12]);
+                $cliente->save();
+                $json = array("status"=>200, "detalle"=>"Registro Exitoso, tome sus credenciales y guardelas",
+                "credenciales"=>array("idCliente"=>$cliente->idCliente, "secret_key"=>$cliente->secret_key));
+                return json_encode($json,true);
+            }
         }else{
-            $cliente = new Clientes();
-            $cliente->nombres = $datos["nombres"];
-            $cliente->apellidos = $datos["apellidos"];
-            $cliente->email = $datos["email"];
-            $cliente->idCliente = Hash::make($datos["nombres"].$datos["apellidos"].$datos["email"]);
-            $cliente->secret_key = Hash::make($datos["email"].$datos["nombres"].$datos["apellidos"],["rounds"=>12]);
-            $cliente->save();
-            $json = array("status"=>200, "idCliente"=>$cliente->idCliente, "secret_key"=>$cliente->secret_key);
+            $json = array("status"=>404, "detalle"=>"Registro no encontrados");
             return json_encode($json,true);
         }
     }
