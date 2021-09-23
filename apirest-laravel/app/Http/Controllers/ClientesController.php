@@ -41,8 +41,8 @@ class ClientesController extends Controller
                 $cliente->nombres = $datos["nombres"];
                 $cliente->apellidos = $datos["apellidos"];
                 $cliente->email = $datos["email"];
-                $cliente->idCliente = Hash::make($datos["nombres"].$datos["apellidos"].$datos["email"]);
-                $cliente->secret_key = Hash::make($datos["email"].$datos["nombres"].$datos["apellidos"],["rounds"=>12]);
+                $cliente->idCliente = str_replace('$', '-', Hash::make($datos["nombres"].$datos["apellidos"].$datos["email"]));
+                $cliente->secret_key = str_replace('$', '-', Hash::make($datos["email"].$datos["nombres"].$datos["apellidos"],["rounds"=>12]));
                 $cliente->save();
                 $json = array("status"=>200, "detalle"=>"Registro Exitoso, tome sus credenciales y guardelas",
                 "credenciales"=>array("idCliente"=>$cliente->idCliente, "secret_key"=>$cliente->secret_key));
