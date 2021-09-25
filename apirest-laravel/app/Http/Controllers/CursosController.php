@@ -70,7 +70,8 @@ class CursosController extends Controller
                     ]); 
 
                     if($validator->fails()){
-                        $json = array("status"=>404, "detalles"=>"Registro con errores: los campos titulo, descripcion y nombre ya existen en la base de datos");    
+                        $errores = $validator->errors();
+                        $json = array("status"=>404, "detalles"=>$errores);    
                     }else{
                         $cursos = new Cursos();
                         $cursos->titulo = $datos["titulo"];
@@ -139,7 +140,8 @@ class CursosController extends Controller
                     ]); 
 
                     if($validator->fails()){
-                        $json = array("status"=>404, "detalles"=>"Registro con errores: No se permiten caracteres especiales");    
+                        $errores = $validator->errors();
+                        $json = array("status"=>404, "detalles"=>$errores);    
                     }else{
                         $getCurso = Cursos::where("id",$id)->get();
                         if($value["id"] == $getCurso[0]["id_creador"]){

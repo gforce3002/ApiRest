@@ -34,8 +34,8 @@ class ClientesController extends Controller
             // si falla la validacion
 
             if($validator->fails()){
-                $json = array("status"=>404,"Detalles"=>"Registros con errores");
-                echo json_encode($json,true);
+                $errores = $validator->errors();
+                $json = array("status"=>404,"Detalles"=>$errores);
             }else{
                 $cliente = new Clientes();
                 $cliente->nombres = $datos["nombres"];
@@ -46,8 +46,9 @@ class ClientesController extends Controller
                 $cliente->save();
                 $json = array("status"=>200, "detalle"=>"Registro Exitoso, tome sus credenciales y guardelas",
                 "credenciales"=>array("idCliente"=>$cliente->idCliente, "secret_key"=>$cliente->secret_key));
-                return json_encode($json,true);
+                
             }
+            return json_encode($json, true);
         }else{
             $json = array("status"=>404, "detalle"=>"Registro no encontrados");
             return json_encode($json,true);
