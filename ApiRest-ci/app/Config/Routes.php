@@ -33,6 +33,7 @@ $routes->setAutoRoute(true);
 // route since we don't have to scan directories.
 $routes->get('/', 'Registro::index');
 $routes->resource('registro');
+$routes->resource('cursos');
 //$routes->resourse('registro');
 
 /*
