@@ -67,6 +67,7 @@ class Cursos extends BaseController
         $token = $this->validateToken($cadena);
         if($token["Authorization"]){
             $datos = $request->getVar();
+            print_r($request);
             if(!empty($datos)){
                 $validation->setRules([
                     "titulo"=>"required|string|max_length[255]",
@@ -82,7 +83,7 @@ class Cursos extends BaseController
                     $datos["id_creador"] = $token["_idUser"];
                     $cursosModel = new CursosModel();
                     $cursosModel->save($datos);
-                    $json = array('status'=>200, 'detalle'=> "El curso ha sido creado satisfactoriamente");
+                    $json = array('status'=>200, 'detalle'=> "El curso ha sido creado satisfactoriamente", "data"=>$datos);
                 }
 
                 
@@ -104,16 +105,84 @@ class Cursos extends BaseController
      * @param (INTEGER) id
      */
 
-     public function show($id){
+    public function show($id){
+    
+    $request = \Config\Services::request();
+    $cadena = str_replace("Authorization: Basic ","",$request->getHeader('Authorization'));
+    $token = $this->validateToken($cadena);
+    if($token["Authorization"]){
+        $cursosModel = new CursosModel();
+        $curso = $cursosModel->find($id);
+        if(!empty($curso)){
+            $json = array("status"=>200, "detalles"=>$curso);
+        }else{
+            $json = array("status"=>404, "detalles"=>"No hay ningun curso registro");
+        }
         
+    }else{
+        $json = array('status'=>404, 'detalle'=> "Requiere credenciales de acceso");
+    }
+    return json_encode($json, true);
+    }
+
+    public function update($id){
+        $request = \Config\Services::request();
+        $validation = \Config\Services::validation();
+        $cadena = str_replace("Authorization: Basic ","",$request->getHeader('Authorization'));
+        $token = $this->validateToken($cadena);
+        if($token["Authorization"]){
+            //parse_str($request->getBody(),$datos);
+            $datos = $this->request->getRawInput();
+            if(!empty($datos)){
+                $validation->setRules([
+                    "titulo"=>"required|string|max_length[255]",
+                    "descripcion"=>"required|string|max_length[255]",
+                    "instructor"=>"required|string|max_length[255]",
+                    "imagen"=>"required|string|max_length[255]",
+                    "precio"=>"required|numeric",
+                ]);
+                $validation->withRequest($this->request)->run();
+                if($validation->getErrors()){
+                    $json = array("Status"=>404,"detalles"=>$validation->getErrors());
+                }else{
+                    $cursosModel = new CursosModel();
+                    $curso = $cursosModel->find($id);
+                    
+                    if($curso["id_creador"]===$token["_idUser"]){
+                        $cursosModel->update($id, $datos);
+                        $json = array('status'=>200, 'detalle'=> "El curso se ha actualizado satisfactoriamente");
+                    }else{
+                        $json = array('status'=>404, 'detalle'=> "Lo sentimos no tienes permisos para actualizar el curso");
+                    }
+                    
+                }
+            }else{
+                $json = array('status'=>404, 'detalle'=> "Los datos del formulario vienen vacios");
+            }
+            
+        }else{
+            $json = array('status'=>404, 'detalle'=> "Requiere credenciales de acceso");
+        }
+        return json_encode($json,true);
+    }
+
+    public function delete($id){
         $request = \Config\Services::request();
         $cadena = str_replace("Authorization: Basic ","",$request->getHeader('Authorization'));
         $token = $this->validateToken($cadena);
         if($token["Authorization"]){
-
+            $cursosModel = new CursosModel();
+            $curso = $cursosModel->find($id);
+            if($curso["id_creador"]===$token["_idUser"]){
+                $cursosModel->delete($id);
+                $json = array("status"=>200, "detalles"=>"El curso ha sido eliminado");
+            }else{
+                $json = array("status"=>404, "detalles"=>"No esta autorizado ");
+            }
+            
         }else{
             $json = array('status'=>404, 'detalle'=> "Requiere credenciales de acceso");
-        }
+        }   
         return json_encode($json, true);
-     }
+    }
 }
