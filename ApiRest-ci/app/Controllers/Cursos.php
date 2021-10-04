@@ -26,9 +26,15 @@ class Cursos extends BaseController
      */
     public function index(){
         //Agregamos el methodo para leer las cabeceras del http
+        
         $request = \Config\Services::request();
         $headers = $request->getHeaders('Authorization');
-       
+        $db = \Config\Database::connect();
+        /**
+         * Realizamos la llamada a la base de datos para aplicar
+         * inner joins en codeinerter
+         */
+        //$db = db_connect();
         /**
          * Obtenemos el acceso a la base de datos de clientes
         */  
@@ -39,8 +45,14 @@ class Cursos extends BaseController
         foreach($clientes as $key=>$value){
             if(array_key_exists('Authorization',$headers) && !empty($headers["Authorization"])){
                 if($cadena === base64_encode($value["idCliente"].":".$value["secret_key"])){
-                    $cursosModel = new CursosModel();
-                    $cursos = $cursosModel->findAll();
+                    /* $cursosModel = new CursosModel();
+                    $cursos = $cursosModel->findAll(); */
+                    $paginacion = isset($_GET["page"])? "LIMIT ". ($_GET["page"]-1)*10 . ", 10" :"";
+                    $sql = "SELECT CU.*,CL.nombres, CL.apellidos  FROM Cursos as CU" 
+                    . " LEFT JOIN clientes as CL on (CL.id = CU.id_creador) ORDER BY CL.id $paginacion";
+                    $query = $db->query($sql);
+                    $cursos = $query->getResult();
+                    
                     if(!empty($cursos)){
                         $json = array("status"=>200, "total_resul"=> count($cursos), "detalles"=>$cursos);
                         
@@ -106,7 +118,6 @@ class Cursos extends BaseController
      */
 
     public function show($id){
-    
     $request = \Config\Services::request();
     $cadena = str_replace("Authorization: Basic ","",$request->getHeader('Authorization'));
     $token = $this->validateToken($cadena);
