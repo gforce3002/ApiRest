@@ -5,7 +5,8 @@
          * Mostrar todos los cursos
          */
         public function index(){
-            $json = array("status"=>200, "detalles"=>"Se estan mostrando todos los cursos");
+            $cursos = cursosModels::index('Cursos');
+            $json = array("status"=>200, "detalles"=>$cursos);
             print json_encode($json, true);
         }
         /**

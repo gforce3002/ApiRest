@@ -5,5 +5,8 @@
     require_once "controllers/clientesController.php";
     require_once "controllers/cursosController.php";
 
+    require_once "models/clientesModels.php";
+    require_once "models/cursosModels.php";
+
     $rutas = new routesController();
     $rutas->index();
