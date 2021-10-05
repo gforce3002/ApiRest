@@ -9,10 +9,11 @@
          * 
          */
         if(count($rutas)==1){
-            if($rutas[1]=="registros"){
+            if($rutas[1]=="registro"){
                 if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST"){
+                    $datos = array_map("htmlspecialchars",$_POST);
                     $registro = new clientesController();
-                    $registro->create();
+                    $registro->create($datos);
                     
                 }
                
