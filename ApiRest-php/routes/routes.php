@@ -9,43 +9,48 @@
          * 
          */
         if(count($rutas)==1){
-            if($rutas[1]=="registro"){
-                if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST"){
-                    $datos = array_map("htmlspecialchars",$_POST);
-                    $registro = new clientesController();
-                    $registro->create($datos);
-                    
-                }
-               
-                
-                return;
-            }
-            if($rutas[1]=="cursos"){
-                $curso = new cursosController();
-
-                if(isset($_SERVER["REQUEST_METHOD"])){
-                    switch($_SERVER["REQUEST_METHOD"]){
-                        case 'GET':
-                            $curso->index();
-                            break;
-                        case 'POST':
-                            $curso->create();
-                            break;
+            switch($rutas[1]){
+                case'registro':
+                    if(isset($_SERVER["REQUEST_METHOD"])){
+                        $registro = new clientesController();
+                        switch($_SERVER["REQUEST_METHOD"]){
+                            case 'POST':
+                                $datos = array_map("htmlspecialchars",$_POST);
+                                $registro->create($datos);
+                                break;
+                            default:
+                                $json = array("status"=>404, "detalle"=>"Detalle no encontrado");
+                                print json_encode($json, true);
+                                break;
+                        }
                     }
-                }
+                    break;
+                case 'cursos':
+                    $curso = new cursosController();
 
-                /* if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "GET"){
-                    $curso->index();
-                    return;
-                }
-                if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST"){
-                    $curso->create();
-                    return;
-                } */
-                
-                
-                return;
+                    if(isset($_SERVER["REQUEST_METHOD"])){
+                        print_r($_SERVER);
+                        return;
+                        switch($_SERVER["REQUEST_METHOD"]){
+                            case 'GET':
+                                $curso->index();
+                                break;
+                            case 'POST':
+                                $curso->create();
+                                break;
+                            default:
+                                $json = array("status"=>404, "detalle"=>"Detalle no encontrado");
+                                print json_encode($json, true);
+                                break;
+                        }
+                    }
+                    break;
+                default:
+                    $json = array("status"=>404, "detalle"=>"Ruta no encontrada");
+                    print json_encode($json, true);
+                break;
             }
+            
         }else{
             if($rutas[1]=="cursos" && is_numeric($rutas[2])){
                 if(isset($_SERVER["REQUEST_METHOD"])){
@@ -69,19 +74,9 @@
                     return;
                 }
 
-
-                /* $curso = new cursosController();
-                if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "PUT"){
-                    $curso->update($rutas[2]);
-                    return;
-                }
-                if(isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "DELETE"){
-                    $curso->delete($rutas[2]);
-                    return;
-                }
-                $json = array("status"=>404, "detalles"=>"Estoy en un registro");
-                print json_encode($json, true);
-                return; */
+            }else{
+                $json = array("status"=>404, "detalle"=>"Ruta no encontrada");
+                    print json_encode($json, true);
             }
         }
     }

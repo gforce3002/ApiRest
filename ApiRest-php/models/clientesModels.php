@@ -20,10 +20,27 @@
         }
 
         static public function create($tabla, $datos){
+            $res = array("Bandera"=>false, "Mensaje"=>"");
             $sql = "INSERT INTO $tabla (nombres, apellidos, email, idCliente, secret_key, created_at, updated_at)
-             values ('{$datos["nombres"]}','{$datos["apellidos"]}','{$datos["email"]}',
-             '{$datos["idCliente"]}','{$datos["secret_key"]}','{$datos["created_at"]}','{$datos["updated_at"]}')";
-             $stmt = conexion::conectar()->prepare($sql);
-             $stmt->execute();
+             values (:nombres, :apellidos, :email, :idCliente, :secret_key, :created_at, :updated_at)";
+            $stmt = conexion::conectar()->prepare($sql);
+            
+            $stmt->bindParam(':nombres', $datos["nombres"], PDO::PARAM_STR);
+            $stmt->bindParam(':apellidos', $datos["apellidos"], PDO::PARAM_STR);
+            $stmt->bindParam(':email', $datos["email"], PDO::PARAM_STR);
+            $stmt->bindParam(':idCliente', $datos["idCliente"], PDO::PARAM_STR);
+            $stmt->bindParam(':secret_key', $datos["secret_key"], PDO::PARAM_STR);
+            $stmt->bindParam(':created_at', $datos["created_at"], PDO::PARAM_STR);
+            $stmt->bindParam(':updated_at', $datos["updated_at"], PDO::PARAM_STR);
+            if($stmt->execute()){
+                $res["Bandera"] = true;
+                $res["Mensaje"] = "El registro se ha creado satisfactoriamente";
+            }else{
+                $res["Bandera"] = false;
+                $res["Mensaje"] = conexion::conectar()->errorInfo();
+            }
+            return $res;
+            $stmt->close();
+            $stmt= null;
         }
     }

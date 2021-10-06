@@ -5,6 +5,9 @@
          * Mostrar todos los cursos
          */
         public function index(){
+            $autentificar = Auth::validar();
+            var_dump($autentificar);
+            return
             $cursos = cursosModels::index('Cursos');
             $json = array("status"=>200, "detalles"=>$cursos);
             print json_encode($json, true);

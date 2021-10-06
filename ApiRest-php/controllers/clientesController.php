@@ -41,7 +41,14 @@
                 $datos["secret_key"] = str_replace('$','o',crypt($datos["email"].$datos["nombres"].$datos["apellidos"], '$2a$07$asdNHaEeSGealhjlkjheWERWwwerWER$'));
                 $datos["created_at"] = date('Y-m-d h:i:s');
                 $datos["updated_at"] = date('Y-m-d h:i:s');
-                $json = array("status"=>404, "detalles"=>$datos);
+                $conn = clientesModels::create("clientes", $datos);
+                if($conn["Bandera"]){
+                    $json = array("status"=>200, "detalles"=>$conn["Mensaje"], 
+                    "credenciales"=> array("idCliente"=>$datos["idCliente"], "secret_key"=>$datos["secret_key"]));
+                }else{
+                    $json = array("status"=>404, "detalles"=>$conn["Mensaje"]);
+                }
+                
                 print json_encode($json, true);
             }
             

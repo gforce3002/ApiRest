@@ -8,5 +8,7 @@
     require_once "models/clientesModels.php";
     require_once "models/cursosModels.php";
 
+    require_once "auth/Auth.php";
+
     $rutas = new routesController();
     $rutas->index();
