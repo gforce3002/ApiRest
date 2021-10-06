@@ -6,10 +6,17 @@
          */
         public function index(){
             $autentificar = Auth::validar();
-            var_dump($autentificar);
-            return
-            $cursos = cursosModels::index('Cursos');
-            $json = array("status"=>200, "detalles"=>$cursos);
+            if($autentificar["Auth"]){
+                $cursos = cursosModels::index('Cursos');
+                if(count($cursos)!=0){
+                    $json = array("status"=>200, "Total_registros"=>count($cursos), "detalles"=>$cursos);
+                }else{
+                    $json = array("status"=>200, "Total_registros"=>count($cursos), "detalles"=>"No hay cursos a mostrar");
+                }
+                
+            }else{
+                $json = array("status"=>404, "detalles"=>$autentificar["msg"]);
+            }
             print json_encode($json, true);
         }
         /**

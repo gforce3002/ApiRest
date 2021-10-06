@@ -29,8 +29,6 @@
                     $curso = new cursosController();
 
                     if(isset($_SERVER["REQUEST_METHOD"])){
-                        print_r($_SERVER);
-                        return;
                         switch($_SERVER["REQUEST_METHOD"]){
                             case 'GET':
                                 $curso->index();

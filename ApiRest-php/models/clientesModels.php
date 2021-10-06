@@ -19,6 +19,13 @@
             }
         }
 
+        static public function validateToken($tabla, $user, $pass){
+            $sql = "SELECT * FROM $tabla where idCliente='$user' and secret_key='$pass'";
+            $stmt = conexion::conectar()->prepare($sql);
+            $stmt->execute();
+            return $stmt->rowCount()!=0? true:false;
+        }
+
         static public function create($tabla, $datos){
             $res = array("Bandera"=>false, "Mensaje"=>"");
             $sql = "INSERT INTO $tabla (nombres, apellidos, email, idCliente, secret_key, created_at, updated_at)
