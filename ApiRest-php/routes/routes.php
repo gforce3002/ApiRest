@@ -34,7 +34,8 @@
                                 $curso->index();
                                 break;
                             case 'POST':
-                                $curso->create();
+                                $datos = array_map("htmlspecialchars",$_POST);
+                                $curso->create($datos);
                                 break;
                             default:
                                 $json = array("status"=>404, "detalle"=>"Detalle no encontrado");

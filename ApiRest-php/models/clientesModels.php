@@ -20,10 +20,23 @@
         }
 
         static public function validateToken($tabla, $user, $pass){
+            $resp = array("Bandera"=>false, "idUser"=>"");
             $sql = "SELECT * FROM $tabla where idCliente='$user' and secret_key='$pass'";
             $stmt = conexion::conectar()->prepare($sql);
-            $stmt->execute();
-            return $stmt->rowCount()!=0? true:false;
+            if($stmt->execute()){
+                if($stmt->rowCount()!=0){
+                    $row = $stmt->fetch();
+                    $resp["Bandera"] = true;
+                    $resp["idUser"] = $row["id"];
+                }else{
+                    $resp["Bandera"] = false;
+                }
+            }else{
+                $resp["Bandera"] = false;
+                $resp["mensaje"] = conexion::conectar()->errorInfo();
+            }
+
+            return $resp;
         }
 
         static public function create($tabla, $datos){
