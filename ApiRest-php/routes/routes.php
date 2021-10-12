@@ -1,7 +1,8 @@
 <?php 
-    $arrayRutas = explode ("/",$_SERVER['REQUEST_URI']);
+    $arrayRutas = explode ("/",strtok( $_SERVER['REQUEST_URI'],'?'));
     $rutas = array_filter($arrayRutas);
-    
+   
+
     if(count($rutas)==0){
         $json = array("status"=>404, "detalles"=>"No encontrado");
     }else{
@@ -31,7 +32,12 @@
                     if(isset($_SERVER["REQUEST_METHOD"])){
                         switch($_SERVER["REQUEST_METHOD"]){
                             case 'GET':
-                                $curso->index();
+                                if(isset($_GET["pages"]) && is_numeric($_GET["pages"])){
+                                    $curso->index($_GET["pages"]); 
+                                }else{
+                                    $curso->index();
+                                }
+                                
                                 break;
                             case 'POST':
                                 $datos = array_map("htmlspecialchars",$_POST);
@@ -59,7 +65,9 @@
                             $curso->show($rutas[2]);
                             break;
                         case 'PUT':
-                            $curso->update($rutas[2]);
+                            //convertimos el string en un array 
+                            parse_str(file_get_contents('php://input'),$datos);
+                            $curso->update($rutas[2],$datos);
                             break;
                         case 'DELETE':
                             $curso->delete($rutas[2]);

@@ -18,10 +18,18 @@
         /**
          * Mostrar todos los cursos
          */
-        public function index(){
+        public function index($page=null){
+            #print_r($page);
             $autentificar = Auth::validar();
             if($autentificar["Auth"]){
-                $cursos = cursosModels::index('Cursos');
+                if(is_null($page)){
+                    $cursos = cursosModels::index('Cursos');
+                }else{
+                    $limit = 10;
+                    $skip = ($page-1)*$limit;
+                    $cursos = cursosModels::index('Cursos',$skip,$limit);
+                }
+                
                 if(count($cursos)!=0){
                     
                     $json = array("status"=>200, "Total_registros"=>count($cursos), "detalles"=>$cursos);
@@ -73,8 +81,30 @@
          * Modificacion de un curso
          * @param (INTEGER) $id  Recibe como parametro el id del curso a modificar
          */
-        public function update($id){
-            $json = array("status"=>404, "detalles"=>"El registro se ha actualizado satisfactoriamente con id: $id");
+        public function update($id,$datos){
+            $autentificar = Auth::validar();
+            if($autentificar["Auth"]){
+                $curso = cursosModels::show('Cursos',$id);
+                if($curso["id_creador"] == $autentificar["idUser"]){
+                    if(isset($datos)){
+                        $validate = $this->validateData($datos);
+                        if($validate["Bandera"]){
+                            $datos["updated_at"] = date('Y-m-d h:i:s');
+                            $curso = cursosModels::update('Cursos',$id,$datos);
+                            $json = array("status"=>200, "detalles"=>$curso);
+                        }else{
+                            $json = array("status"=>404, "detalles"=>$validate["mensaje"]); 
+                        }
+                    }else{
+                        $json = array("status"=>404, "detalles"=>"No existe el id a buscar");
+                    }
+                }else{
+                    $json = array("status"=>404, "detalles"=>"No tienes permisos para modificar este curso");
+                }
+                
+            }else{
+                $json = array("status"=>404, "detalles"=>$autentificar["msg"]); 
+            }
             print json_encode($json, true);
         }
 
@@ -83,7 +113,22 @@
          * @param (INTEGER) $id  Recibe como parametro el id del curso a eliminar
          */
         public function delete($id){
-            $json = array("status"=>404, "detalles"=>"El registro se ha eliminado con id: $id");
+            $autentificar = Auth::validar();
+            if($autentificar["Auth"]){
+                $curso = cursosModels::show('Cursos',$id);
+                if($curso["id_creador"] == $autentificar["idUser"]){
+                    $curso = cursosModels::delete('Cursos',$id);
+                    if($curso["Bandera"]){
+                        $json = array("status"=>200, "detalles"=>$curso["Mensaje"]);    
+                    }else{
+                        $json = array("status"=>404, "detalles"=>$curso["Mensaje"]);    
+                    }
+                }else{
+                    $json = array("status"=>404, "detalles"=>"No tienes permisos para eliminar este curso");
+                }
+            }else{
+                $json = array("status"=>404, "detalles"=>$autentificar["msg"]); 
+            }
             print json_encode($json, true);
         }
          /**
@@ -91,7 +136,18 @@
          * @param (INTEGER) $id  Recibe como parametro el id del curso a buscar
          */
         public function show($id){
-            $json = array("status"=>404, "detalles"=>"Mostrando el curso con el id: $id");
+            $autentificar = Auth::validar();
+            if($autentificar["Auth"]){
+                if(isset($id)){
+                    $curso = cursosModels::show('Cursos',$id);
+                    $json = array("status"=>200, "detalles"=>$curso);
+                }else{
+                    $json = array("status"=>404, "detalles"=>"No existe el id a buscar");
+                }
+            }else{
+                $json = array("status"=>404, "detalles"=>$autentificar["msg"]); 
+            }
+            
             print json_encode($json, true);
         }
     }
